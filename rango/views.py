@@ -18,9 +18,11 @@ from django.http import HttpResponseRedirect, HttpResponse
 
 from django.core.urlresolvers import reverse
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required
 
-from django.contrib.auth import logout
+
+from django.contrib.auth import logout
+
 
 def index(request):
     category_list = Category.objects.order_by('-likes')[:5]
@@ -131,6 +133,7 @@ def register(request):
 
 
 def user_login(request):
+    
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -145,11 +148,16 @@ def user_login(request):
             else:
                 return HttpResponse("Your Rango account is disabled.")
         else:
-            print("Invalid login details: {0}, {1}".format(username, password))
-            return HttpResponse("Invalid login details supplied.")
-
+            if not username and not password:
+                print("Invalid login details: {0}, {1}".format(username, password))
+                return HttpResponse("Invalid login details supplied.")
+            elif not password:
+                return HttpResponse("wrongpass")
+            else:
+                return HttpResponse("wronguser")
+        
     else:
-                  return render(request, 'rango/login.html', {})
+        return render(request, 'rango/login.html', {})
 
 @login_required
 def restricted(request):
@@ -158,6 +166,7 @@ def restricted(request):
 @login_required
 def user_logout(request):
     logout(request)
-    return HttpResponseRedirect(reverse('index'))
+    return HttpResponseRedirect(reverse('index'))
+
 
 
